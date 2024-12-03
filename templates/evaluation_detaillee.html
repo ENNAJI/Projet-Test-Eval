@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Évaluation Détaillée des Soft Skills</h2>
+    
+    <form method="POST" action="{{ url_for('evaluation_detaillee') }}" class="needs-validation" novalidate>
+        <!-- Informations du candidat -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Informations du Candidat</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" name="nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="prenom" name="prenom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="specialite" class="form-label">Spécialité</label>
+                        <select class="form-select" id="specialite" name="specialite" required>
+                            <option value="">Choisir une spécialité...</option>
+                            {% for specialite in specialites %}
+                            <option value="{{ specialite }}">{{ specialite }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="experience" class="form-label">Années d'expérience</label>
+                        <input type="number" class="form-control" id="experience" name="experience" required min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="niveau" class="form-label">Niveau</label>
+                        <select class="form-select" id="niveau" name="niveau" required>
+                            <option value="">Choisir un niveau...</option>
+                            <option value="Débutant">Débutant</option>
+                            <option value="Intermédiaire">Intermédiaire</option>
+                            <option value="Avancé">Avancé</option>
+                            <option value="Expert">Expert</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% for categorie in categories %}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">{{ loop.index }}. {{ categorie.nom }}</h4>
+            </div>
+            <div class="card-body">
+                {% for competence in categorie.competences %}
+                <div class="competence-section mb-4">
+                    <h5 class="competence-title">{{ loop.index }}. {{ competence.nom }}</h5>
+                    
+                    <!-- Questions pour cette compétence -->
+                    <div id="questions_{{ competence.id }}"></div>
+
+                    <!-- Score calculé pour cette compétence -->
+                    <div class="score-summary card mt-3">
+                        <div class="card-body">
+                            <h6>Score calculé pour cette compétence :</h6>
+                            <div class="score-display">
+                                <span class="h4 score-value" id="score_competence_{{ competence.id }}">-</span>/5
+                                <span class="progress-value"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Commentaire optionnel -->
+                    <div class="mt-3">
+                        <label class="form-label">Commentaire additionnel (optionnel)</label>
+                        <textarea class="form-control" 
+                                 name="comment_{{ categorie.id }}_{{ competence.id }}"
+                                 rows="2"></textarea>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Commentaire général -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Évaluation Globale</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="commentaire_general" class="form-label">Commentaire Général</label>
+                    <textarea class="form-control" id="commentaire_general" 
+                             name="commentaire_general" rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Score global -->
+        <div class="global-score">
+            <h4>Score global :</h4>
+            <span class="h2" id="global-score-value">-</span>/5
+        </div>
+
+        <div class="text-center mb-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Soumettre l'Évaluation
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Fonction pour charger les questions spécifiques à la spécialité
+    document.getElementById('specialite').addEventListener('change', function() {
+        const specialite = this.value;
+        if (specialite) {
+            fetch(`/evaluation_detaillee?specialite=${encodeURIComponent(specialite)}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Mettre à jour les questions pour chaque compétence
+                    Object.keys(data.questions_par_competence).forEach(competenceId => {
+                        const questions = data.questions_par_competence[competenceId];
+                        const questionContainer = document.querySelector(`#questions_${competenceId}`);
+                        if (questionContainer) {
+                            questionContainer.innerHTML = ''; // Effacer les questions existantes
+                            questions.forEach((q, index) => {
+                                const questionHtml = `
+                                    <div class="question mb-3">
+                                        <p class="fw-bold">${index + 1}. ${q.question}</p>
+                                        <div class="options">
+                                            ${q.options.map((opt, i) => `
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" 
+                                                           name="question_${competenceId}_${index}" 
+                                                           id="q${competenceId}_${index}_${i}" 
+                                                           value="${opt.score}">
+                                                    <label class="form-check-label" for="q${competenceId}_${index}_${i}">
+                                                        ${opt.texte}
+                                                    </label>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                                questionContainer.innerHTML += questionHtml;
+                            });
+                        }
+                    });
+                })
+                .catch(error => console.error('Erreur:', error));
+        }
+    });
+
+    // Fonction pour calculer le score d'une compétence
+    function calculateCompetenceScore(competenceSection) {
+        const questions = competenceSection.querySelectorAll('input[type="radio"]:checked');
+        if (questions.length === 0) return 0;
+        
+        let total = 0;
+        questions.forEach(q => {
+            total += parseFloat(q.value);
+        });
+        return total / questions.length;
+    }
+
+    // Fonction pour mettre à jour tous les scores
+    function updateAllScores() {
+        const competenceSections = document.querySelectorAll('.competence-section');
+        let globalTotal = 0;
+        let competenceCount = 0;
+
+        competenceSections.forEach(section => {
+            const score = calculateCompetenceScore(section);
+            const scoreDisplay = section.querySelector('.competence-score');
+            if (scoreDisplay) {
+                scoreDisplay.textContent = score.toFixed(2);
+                globalTotal += score;
+                competenceCount++;
+            }
+        });
+
+        // Mise à jour du score global
+        const globalScore = competenceCount > 0 ? globalTotal / competenceCount : 0;
+        document.getElementById('global-score-value').textContent = globalScore.toFixed(2);
+    }
+
+    // Ajout des écouteurs d'événements
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', updateAllScores);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{
+    "communication": {
+        "expression_orale": {
+            "nom": "Expression Orale",
+            "scenarios": [
+                {
+                    "id": "expr_orale_1",
+                    "question": "Vous devez présenter un projet technique complexe à des parties prenantes non techniques. Comment structurez-vous votre présentation?",
+                    "choix": {
+                        "A": "J'adapte mon langage, utilise des analogies et des exemples concrets, et structure ma présentation de manière progressive",
+                        "B": "Je présente tous les détails techniques de manière exhaustive",
+                        "C": "Je survole rapidement les points principaux sans entrer dans les détails"
+                    },
+                    "reponse_correcte": "A"
+                },
+                {
+                    "id": "expr_orale_2",
+                    "question": "Lors d'une réunion d'équipe, vous remarquez que certains membres semblent confus. Comment réagissez-vous?",
+                    "choix": {
+                        "A": "Je fais une pause, demande des questions et clarifie les points de confusion",
+                        "B": "Je continue ma présentation en parlant plus lentement",
+                        "C": "J'ignore les signes de confusion et termine rapidement"
+                    },
+                    "reponse_correcte": "A"
+                }
+            ]
+        },
+        "ecoute_active": {
+            "nom": "Écoute Active",
+            "scenarios": [
+                {
+                    "id": "ecoute_1",
+                    "question": "Un collègue junior exprime des difficultés techniques de manière confuse. Comment réagissez-vous?",
+                    "choix": {
+                        "A": "Je pose des questions ciblées pour clarifier sa pensée et reformule pour confirmer ma compréhension",
+                        "B": "J'attends qu'il finisse et propose immédiatement une solution",
+                        "C": "Je l'interromps pour lui dire qu'il n'est pas clair"
+                    },
+                    "reponse_correcte": "A"
+                },
+                {
+                    "id": "ecoute_2",
+                    "question": "Pendant une réunion client, plusieurs besoins contradictoires sont exprimés. Comment gérez-vous la situation?",
+                    "choix": {
+                        "A": "J'écoute attentivement, prends des notes, et aide à prioriser les besoins en posant des questions pertinentes",
+                        "B": "Je me concentre sur les besoins les plus simples à implémenter",
+                        "C": "Je laisse le client décider sans intervenir"
+                    },
+                    "reponse_correcte": "A"
+                }
+            ]
+        },
+        "communication_ecrite": {
+            "nom": "Communication Écrite",
+            "scenarios": [
+                {
+                    "id": "comm_ecrite_1",
+                    "question": "Vous devez documenter une nouvelle API pour l'équipe. Comment procédez-vous?",
+                    "choix": {
+                        "A": "Je crée une documentation claire avec exemples, cas d'usage et structure logique",
+                        "B": "Je liste uniquement les endpoints et leurs paramètres",
+                        "C": "Je laisse le code se documenter lui-même"
+                    },
+                    "reponse_correcte": "A"
+                },
+                {
+                    "id": "comm_ecrite_2",
+                    "question": "Un bug critique est découvert en production. Comment communiquez-vous avec l'équipe?",
+                    "choix": {
+                        "A": "Je rédige un message clair détaillant le problème, son impact, et les actions en cours",
+                        "B": "J'envoie une alerte rapide sans détails",
+                        "C": "J'attends d'avoir résolu le problème avant de communiquer"
+                    },
+                    "reponse_correcte": "A"
+                }
+            ]
+        }
+    }
+}

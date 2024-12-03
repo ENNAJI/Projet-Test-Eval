@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Détail de l'Évaluation</h2>
+            <a href="{{ url_for('resultats') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour aux résultats
+            </a>
+        </div>
+    </div>
+
+    <!-- Informations du candidat -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Informations du Candidat</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Nom :</strong> {{ evaluation.candidat.nom }}</p>
+                    <p><strong>Prénom :</strong> {{ evaluation.candidat.prenom }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Email :</strong> {{ evaluation.candidat.email }}</p>
+                    <p><strong>Spécialité :</strong> {{ evaluation.candidat.specialite }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scores détaillés -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Scores Détaillés</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for score in evaluation.scores %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5>{{ score.competence }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <h2 class="display-4">{{ score.score }}/5</h2>
+                            </div>
+                            <div class="progress mb-3">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ (score.score/5)*100 }}%"
+                                     aria-valuenow="{{ score.score }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="5">
+                                </div>
+                            </div>
+                            {% if score.commentaire %}
+                            <div class="mt-3">
+                                <h6>Commentaire :</h6>
+                                <p class="card-text">{{ score.commentaire }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphique radar individuel -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Visualisation des Compétences</h4>
+        </div>
+        <div class="card-body">
+            <div id="radar-chart" style="height: 400px;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Préparation des données pour le graphique radar
+    const scores = {{ evaluation.scores|map(attribute='score')|list|tojson }};
+    const competences = {{ evaluation.scores|map(attribute='competence')|list|tojson }};
+
+    // Création du graphique radar
+    Plotly.newPlot('radar-chart', [{
+        type: 'scatterpolar',
+        r: scores,
+        theta: competences,
+        fill: 'toself',
+        name: 'Scores'
+    }], {
+        polar: {
+            radialaxis: {
+                visible: true,
+                range: [0, 5]
+            }
+        },
+        showlegend: false
+    });
+</script>
+{% endblock %}

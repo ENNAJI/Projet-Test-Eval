@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Évaluation des Soft Skills</h1>
+        <p class="lead">Plateforme d'évaluation des compétences non techniques pour les ingénieurs EMSI</p>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Évaluation Standard</h5>
+                    <p class="card-text">Évaluation classique des soft skills sans assistance IA. Idéal pour une évaluation rapide et directe.</p>
+                    <a href="{{ url_for('evaluation_sans_ia') }}" class="btn btn-primary">Commencer</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Évaluation Détaillée avec IA</h5>
+                    <p class="card-text">Évaluation approfondie des soft skills avec assistance IA pour une analyse plus précise.</p>
+                    <a href="{{ url_for('evaluation_avec_ia') }}" class="btn btn-success">Commencer</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Évaluation Détaillée avec Scénarios</h5>
+                    <p class="card-text">Évaluation basée sur des scénarios réels pour une analyse approfondie des compétences.</p>
+                    <a href="{{ url_for('evaluation_detaillee_scenario') }}" class="btn btn-warning">Commencer</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Résultats</h5>
+                    <p class="card-text">Consultez les résultats des évaluations précédentes et les analyses détaillées.</p>
+                    <a href="{{ url_for('resultats') }}" class="btn btn-info">Voir les résultats</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes au survol
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

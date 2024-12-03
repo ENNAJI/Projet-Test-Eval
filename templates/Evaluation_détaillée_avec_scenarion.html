@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Évaluation détaillée avec scénarios</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .scenario-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .scenario-text {
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .options-container {
+            margin-left: 20px;
+        }
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin: 30px 0;
+        }
+        .submit-button {
+            margin: 20px 0;
+        }
+        .rubrique-title {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .results-container {
+            margin-top: 50px;
+        }
+        .category-results {
+            margin-bottom: 40px;
+        }
+        .skills-details {
+            margin-top: 20px;
+        }
+        .skill-item {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Évaluation détaillée avec scénarios</h1>
+        <form id="evaluationForm">
+            <!-- Les scénarios seront chargés dynamiquement ici -->
+            <div id="scenarios-container"></div>
+
+            <!-- Bouton de soumission -->
+            <div class="text-center submit-button">
+                <button type="submit" class="btn btn-primary btn-lg">Soumettre l'évaluation</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Fonction pour charger les scénarios depuis le fichier
+        async function loadScenarios() {
+            try {
+                const response = await fetch('/get-scenarios');
+                const scenarios = await response.json();
+                displayScenarios(scenarios);
+            } catch (error) {
+                console.error('Erreur lors du chargement des scénarios:', error);
+            }
+        }
+
+        // Fonction pour afficher les scénarios
+        function displayScenarios(data) {
+            const container = document.getElementById('scenarios-container');
+            
+            for (const domain in data) {
+                for (const category in data[domain]) {
+                    const categoryData = data[domain][category];
+                    
+                    // Créer la section pour la catégorie
+                    const categorySection = document.createElement('div');
+                    categorySection.className = 'section mb-5';
+                    categorySection.innerHTML = `<h2 class="rubrique-title">${categoryData.nom}</h2>`;
+
+                    // Ajouter chaque scénario
+                    categoryData.scenarios.forEach(scenario => {
+                        const scenarioCard = document.createElement('div');
+                        scenarioCard.className = 'scenario-card';
+                        scenarioCard.innerHTML = `
+                            <div class="scenario-text">
+                                <strong>Scénario ${scenario.id.split('_').pop()}:</strong> ${scenario.question}
+                            </div>
+                            <div class="options-container">
+                                ${Object.entries(scenario.choix).map(([key, value]) => `
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="${scenario.id}" value="${key}">
+                                        <label class="form-check-label">${value}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        categorySection.appendChild(scenarioCard);
+                    });
+
+                    container.appendChild(categorySection);
+                }
+            }
+        }
+
+        // Charger les scénarios au chargement de la page
+        document.addEventListener('DOMContentLoaded', loadScenarios);
+
+        // Système de notation
+        const evaluationResults = {
+            communication: {
+                expression_orale: { score: 0, total: 0, responses: [] },
+                ecoute_active: { score: 0, total: 0, responses: [] },
+                communication_ecrite: { score: 0, total: 0, responses: [] }
+            },
+            leadership: {
+                decision_making: { score: 0, total: 0, responses: [] },
+                team_management: { score: 0, total: 0, responses: [] },
+                strategic_vision: { score: 0, total: 0, responses: [] }
+            },
+            problem_solving: {
+                critical_analysis: { score: 0, total: 0, responses: [] },
+                creativity: { score: 0, total: 0, responses: [] },
+                crisis_management: { score: 0, total: 0, responses: [] }
+            },
+            teamwork: {
+                collaboration: { score: 0, total: 0, responses: [] },
+                conflict_management: { score: 0, total: 0, responses: [] },
+                team_spirit: { score: 0, total: 0, responses: [] }
+            },
+            adaptability: {
+                flexibility: { score: 0, total: 0, responses: [] },
+                continuous_learning: { score: 0, total: 0, responses: [] },
+                change_management: { score: 0, total: 0, responses: [] }
+            }
+        };
+
+        // Collecter et évaluer les réponses
+        document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            for (let [key, value] of formData.entries()) {
+                // Identifier la catégorie et la compétence
+                let category, skill;
+                if (key.startsWith('expr_orale')) {
+                    category = 'communication';
+                    skill = 'expression_orale';
+                } else if (key.startsWith('ecoute')) {
+                    category = 'communication';
+                    skill = 'ecoute_active';
+                } else if (key.startsWith('comm_ecrite')) {
+                    category = 'communication';
+                    skill = 'communication_ecrite';
+                } else if (key.startsWith('decision')) {
+                    category = 'leadership';
+                    skill = 'decision_making';
+                } // ... etc pour toutes les catégories
+
+                // Calculer le score
+                if (category && skill) {
+                    evaluationResults[category][skill].total++;
+                    evaluationResults[category][skill].responses.push({
+                        question: key,
+                        response: value
+                    });
+
+                    // Attribution des points
+                    if (value === 'A') {
+                        evaluationResults[category][skill].score += 2;
+                    } else if (value === 'B') {
+                        evaluationResults[category][skill].score += 1;
+                    }
+                    // C = 0 points
+                }
+            }
+
+            // Calculer les pourcentages et niveaux
+            const results = calculateResults(evaluationResults);
+            
+            // Afficher les résultats
+            displayResults(results);
+        });
+
+        function calculateResults(evaluationResults) {
+            const results = {};
+            
+            for (let category in evaluationResults) {
+                results[category] = {
+                    skills: {},
+                    overall: 0,
+                    totalSkills: 0
+                };
+
+                for (let skill in evaluationResults[category]) {
+                    const skillData = evaluationResults[category][skill];
+                    const maxScore = skillData.total * 2; // 2 points max par question
+                    const percentage = (skillData.score / maxScore) * 100;
+                    
+                    results[category].skills[skill] = {
+                        percentage: percentage,
+                        level: getLevel(percentage),
+                        details: skillData.responses
+                    };
+
+                    results[category].overall += percentage;
+                    results[category].totalSkills++;
+                }
+
+                results[category].overall /= results[category].totalSkills;
+            }
+
+            return results;
+        }
+
+        function getLevel(percentage) {
+            if (percentage >= 90) return "Expert";
+            if (percentage >= 75) return "Avancé";
+            if (percentage >= 60) return "Intermédiaire";
+            if (percentage >= 40) return "Basique";
+            return "Débutant";
+        }
+
+        // Système de sauvegarde des résultats
+        function saveResults(results) {
+            const savedResults = JSON.parse(localStorage.getItem('evaluationHistory') || '[]');
+            const currentEvaluation = {
+                date: new Date().toISOString(),
+                results: results
+            };
+            savedResults.push(currentEvaluation);
+            localStorage.setItem('evaluationHistory', JSON.stringify(savedResults));
+        }
+
+        // Système de recommandations
+        const recommendations = {
+            expression_orale: {
+                debutant: "Recommandations pour l'expression orale (Débutant) :<br>- Participez à des clubs de prise de parole<br>- Entraînez-vous à présenter devant un miroir<br>- Enregistrez-vous pour identifier vos points d'amélioration",
+                basique: "Recommandations pour l'expression orale (Basique) :<br>- Pratiquez des présentations techniques courtes<br>- Suivez des formations en communication professionnelle<br>- Demandez du feedback régulier",
+                intermediaire: "Recommandations pour l'expression orale (Intermédiaire) :<br>- Prenez le lead dans les présentations d'équipe<br>- Diversifiez vos contextes de prise de parole<br>- Développez votre storytelling",
+                avance: "Recommandations pour l'expression orale (Avancé) :<br>- Mentorez d'autres personnes<br>- Participez à des conférences techniques<br>- Animez des formations",
+                expert: "Recommandations pour l'expression orale (Expert) :<br>- Partagez votre expertise lors d'événements majeurs<br>- Créez du contenu éducatif<br>- Développez votre personal branding"
+            },
+            // Ajoutez des recommandations similaires pour chaque compétence...
+        };
+
+        function getRecommendations(skill, level) {
+            if (recommendations[skill] && recommendations[skill][level.toLowerCase()]) {
+                return recommendations[skill][level.toLowerCase()];
+            }
+            return "Pas de recommandations spécifiques disponibles pour ce niveau.";
+        }
+
+        // Modification de la fonction displayResults pour inclure les comparaisons et recommandations
+        function displayResults(results) {
+            const resultsDiv = document.createElement('div');
+            resultsDiv.className = 'results-container mt-5';
+            
+            let html = '<h2 class="text-center mb-4">Résultats de l\'évaluation</h2>';
+            
+            // Récupérer l'historique pour la comparaison
+            const savedResults = JSON.parse(localStorage.getItem('evaluationHistory') || '[]');
+            const previousEvaluation = savedResults[savedResults.length - 1]?.results;
+            
+            for (let category in results) {
+                html += `
+                    <div class="category-results mb-4">
+                        <h3>${formatCategoryName(category)} - ${results[category].overall.toFixed(1)}%</h3>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: ${results[category].overall}%" 
+                                 aria-valuenow="${results[category].overall}" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="skills-details">
+                `;
+
+                for (let skill in results[category].skills) {
+                    const skillData = results[category].skills[skill];
+                    const previousSkillData = previousEvaluation?.[category]?.skills?.[skill];
+                    
+                    // Calculer la progression
+                    let progressionHtml = '';
+                    if (previousSkillData) {
+                        const progression = skillData.percentage - previousSkillData.percentage;
+                        const progressionClass = progression >= 0 ? 'text-success' : 'text-danger';
+                        const progressionSymbol = progression >= 0 ? '↑' : '↓';
+                        progressionHtml = `<span class="${progressionClass}"> ${progressionSymbol} ${Math.abs(progression).toFixed(1)}%</span>`;
+                    }
+
+                    html += `
+                        <div class="skill-item mb-4">
+                            <div class="d-flex justify-content-between">
+                                <span>${formatSkillName(skill)}</span>
+                                <span>${skillData.percentage.toFixed(1)}% - ${skillData.level} ${progressionHtml}</span>
+                            </div>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                     style="width: ${skillData.percentage}%" 
+                                     aria-valuenow="${skillData.percentage}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            <div class="recommendations mt-2 p-3 bg-light rounded">
+                                <h6>Recommandations :</h6>
+                                <p class="mb-0">${getRecommendations(skill, skillData.level)}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += '</div></div>';
+            }
+
+            // Ajouter la visualisation de l'historique
+            html += `
+                <div class="history-section mt-5">
+                    <h3>Historique des évaluations</h3>
+                    <div class="chart-container" style="position: relative; height:400px;">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.innerHTML = html;
+
+            // Ajouter les résultats à la page
+            const form = document.getElementById('evaluationForm');
+            form.style.display = 'none';
+            form.parentNode.insertBefore(resultsDiv, form.nextSibling);
+
+            // Créer le graphique d'historique
+            createHistoryChart(savedResults);
+
+            // Ajouter les boutons d'action
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'button-container mt-4 d-flex justify-content-center gap-3';
+
+            const restartButton = document.createElement('button');
+            restartButton.className = 'btn btn-primary';
+            restartButton.innerHTML = 'Recommencer l\'évaluation';
+            restartButton.onclick = function() {
+                form.style.display = 'block';
+                resultsDiv.remove();
+                form.reset();
+            };
+
+            const exportButton = document.createElement('button');
+            exportButton.className = 'btn btn-success';
+            exportButton.innerHTML = 'Exporter les résultats (PDF)';
+            exportButton.onclick = function() {
+                exportToPDF(results);
+            };
+
+            buttonContainer.appendChild(restartButton);
+            buttonContainer.appendChild(exportButton);
+            resultsDiv.appendChild(buttonContainer);
+
+            // Sauvegarder les résultats
+            saveResults(results);
+        }
+
+        // Fonction pour créer le graphique d'historique
+        function createHistoryChart(savedResults) {
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            const dates = savedResults.map(r => new Date(r.date).toLocaleDateString());
+            const datasets = [];
+
+            // Créer un dataset pour chaque catégorie
+            const categories = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'];
+            const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+
+            categories.forEach((category, index) => {
+                const data = savedResults.map(r => r.results[category].overall);
+                datasets.push({
+                    label: formatCategoryName(category),
+                    data: data,
+                    borderColor: colors[index],
+                    fill: false
+                });
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fonction pour exporter en PDF
+        function exportToPDF(results) {
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text('Rapport d\'évaluation des soft skills', 20, 20);
+            
+            let yPosition = 40;
+            
+            for (let category in results) {
+                doc.setFontSize(14);
+                doc.text(`${formatCategoryName(category)} - ${results[category].overall.toFixed(1)}%`, 20, yPosition);
+                yPosition += 10;
+
+                doc.setFontSize(12);
+                for (let skill in results[category].skills) {
+                    const skillData = results[category].skills[skill];
+                    doc.text(`${formatSkillName(skill)}: ${skillData.percentage.toFixed(1)}% - ${skillData.level}`, 30, yPosition);
+                    yPosition += 7;
+                }
+                yPosition += 10;
+            }
+
+            doc.save('evaluation-soft-skills.pdf');
+        }
+
+        function formatCategoryName(category) {
+            const names = {
+                communication: 'Communication',
+                leadership: 'Leadership',
+                problem_solving: 'Résolution de problèmes',
+                teamwork: 'Travail d\'équipe',
+                adaptability: 'Adaptabilité'
+            };
+            return names[category] || category;
+        }
+
+        function formatSkillName(skill) {
+            const names = {
+                expression_orale: 'Expression Orale',
+                ecoute_active: 'Écoute Active',
+                communication_ecrite: 'Communication Écrite',
+                decision_making: 'Prise de Décision',
+                team_management: 'Gestion d\'Équipe',
+                strategic_vision: 'Vision Stratégique',
+                critical_analysis: 'Analyse Critique',
+                creativity: 'Créativité',
+                crisis_management: 'Gestion de Crise',
+                collaboration: 'Collaboration',
+                conflict_management: 'Gestion des Conflits',
+                team_spirit: 'Esprit d\'Équipe',
+                flexibility: 'Flexibilité',
+                continuous_learning: 'Apprentissage Continu',
+                change_management: 'Gestion du Changement'
+            };
+            return names[skill] || skill;
+        }
+    </script>
+    <!-- Ajout des bibliothèques nécessaires -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>

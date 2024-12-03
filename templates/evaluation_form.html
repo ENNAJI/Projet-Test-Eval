@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Nouvelle Évaluation des Soft Skills</h2>
+    
+    <form method="POST" action="{{ url_for('nouvelle_evaluation') }}">
+        <!-- Informations de base -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Informations du Candidat</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" name="nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="prenom" name="prenom" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="specialite" class="form-label">Spécialité</label>
+                        <input type="text" class="form-control" id="specialite" name="specialite" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Évaluation des compétences -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Évaluation des Compétences</h4>
+            </div>
+            <div class="card-body">
+                <!-- Communication -->
+                <div class="mb-4">
+                    <h5>1. Compétences en Communication</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Capacité à expliquer des concepts complexes</label>
+                        <input type="range" class="form-range" min="1" max="5" step="1" name="comm_explication" required>
+                        <div class="d-flex justify-content-between">
+                            <span class="small">Faible</span>
+                            <span class="small">Excellent</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comm_commentaire" class="form-label">Commentaires</label>
+                        <textarea class="form-control" id="comm_commentaire" name="comm_commentaire" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Pédagogie -->
+                <div class="mb-4">
+                    <h5>2. Compétences Pédagogiques</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Structuration et organisation de l'information</label>
+                        <input type="range" class="form-range" min="1" max="5" step="1" name="ped_structure" required>
+                        <div class="d-flex justify-content-between">
+                            <span class="small">Faible</span>
+                            <span class="small">Excellent</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ped_commentaire" class="form-label">Commentaires</label>
+                        <textarea class="form-control" id="ped_commentaire" name="ped_commentaire" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Leadership -->
+                <div class="mb-4">
+                    <h5>3. Leadership et Gestion de Groupe</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Capacité à motiver et inspirer</label>
+                        <input type="range" class="form-range" min="1" max="5" step="1" name="lead_motivation" required>
+                        <div class="d-flex justify-content-between">
+                            <span class="small">Faible</span>
+                            <span class="small">Excellent</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lead_commentaire" class="form-label">Commentaires</label>
+                        <textarea class="form-control" id="lead_commentaire" name="lead_commentaire" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Autres compétences peuvent être ajoutées de manière similaire -->
+            </div>
+        </div>
+
+        <!-- Commentaire général -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Évaluation Globale</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="commentaire_general" class="form-label">Commentaire Général</label>
+                    <textarea class="form-control" id="commentaire_general" name="commentaire_general" rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <button type="submit" class="btn btn-primary btn-lg">Soumettre l'Évaluation</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Ajouter des étiquettes numériques pour les curseurs
+    document.querySelectorAll('input[type="range"]').forEach(function(slider) {
+        slider.addEventListener('input', function() {
+            // Mettre à jour une étiquette si elle existe
+            let label = this.nextElementSibling;
+            if (label) {
+                label.textContent = this.value;
+            }
+        });
+    });
+</script>
+{% endblock %}

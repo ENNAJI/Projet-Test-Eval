@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Résultats des Évaluations</h2>
+
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="specialite" class="form-label">Filtrer par spécialité</label>
+                    <select class="form-select" id="specialite" name="specialite">
+                        <option value="">Toutes les spécialités</option>
+                        {% for specialite in specialites %}
+                        <option value="{{ specialite }}" {% if specialite == selected_specialite %}selected{% endif %}>
+                            {{ specialite }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="periode" class="form-label">Période</label>
+                    <select class="form-select" id="periode" name="periode">
+                        <option value="all">Toutes les périodes</option>
+                        <option value="month">Dernier mois</option>
+                        <option value="quarter">Dernier trimestre</option>
+                        <option value="year">Dernière année</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Moyenne par Compétence</h5>
+                </div>
+                <div class="card-body">
+                    <div id="radar-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Distribution des Scores</h5>
+                </div>
+                <div class="card-body">
+                    <div id="box-plot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des évaluations -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Dernières Évaluations</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Spécialité</th>
+                            <th>Score Moyen</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evaluation in evaluations %}
+                        <tr>
+                            <td>{{ evaluation.date_evaluation.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ evaluation.candidat.nom }}</td>
+                            <td>{{ evaluation.candidat.prenom }}</td>
+                            <td>{{ evaluation.candidat.specialite }}</td>
+                            <td>{{ "%.2f"|format(evaluation.score_moyen) }}</td>
+                            <td>
+                                <a href="{{ url_for('detail_evaluation', evaluation_id=evaluation.id) }}" 
+                                   class="btn btn-sm btn-info">
+                                    Détails
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Données pour les graphiques
+    const radarData = {{ radar_data | tojson }};
+    const boxPlotData = {{ boxplot_data | tojson }};
+
+    // Création du graphique radar
+    Plotly.newPlot('radar-chart', [{
+        type: 'scatterpolar',
+        r: radarData.scores,
+        theta: radarData.competences,
+        fill: 'toself',
+        name: 'Moyenne des scores'
+    }], {
+        polar: {
+            radialaxis: {
+                visible: true,
+                range: [0, 5]
+            }
+        },
+        showlegend: false
+    });
+
+    // Création du box plot
+    Plotly.newPlot('box-plot', boxPlotData, {
+        yaxis: {
+            range: [0, 5],
+            title: 'Score'
+        },
+        showlegend: true
+    });
+</script>
+{% endblock %}
