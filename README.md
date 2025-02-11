@@ -10,15 +10,37 @@
 - Affichage des résultats via une interface utilisateur simple et intuitive.
 
 ## 📂 Structure du projet
-- **`app.py`** : Point d'entrée principal de l'application Flask.
-- **`ai_module.py`** : Module d'IA utilisé pour analyser les réponses des utilisateurs.
-- **`requirements.txt`** : Liste des dépendances Python nécessaires pour exécuter le projet.
-- **`soft_skills_formation_ingenieur.md`** : Documentation sur les compétences non techniques évaluées.
-- **`softskills.db`** : Base de données SQLite contenant les réponses des utilisateurs.
-- **`base-de-donnees-des-scenarios.txt`** : Scénarios de test pour l'entraînement et l'analyse.
-- **`templates/`** : Contient les fichiers HTML pour l'interface utilisateur.
-- **`instance/`** : Dossier utilisé par Flask pour stocker des fichiers temporaires.
-- **`venv/`** : Environnement virtuel Python (optionnel, recommandé).
+Le projet est organisé comme suit :
+
+```plaintext
+Projet-Test-Eval/
+│-- app.py                   # Point d'entrée principal de l'application Flask
+│-- ai_module.py             # Module d'IA pour analyser les réponses
+│-- requirements.txt         # Liste des dépendances Python
+│-- soft_skills_formation_ingenieur.md  # Documentation sur les soft skills
+│-- softskills.db            # Base de données SQLite contenant les réponses
+│-- base-de-donnees-des-scenarios.txt   # Scénarios de test pour l'analyse
+│
+├── templates/               # Contient les fichiers HTML pour l'interface utilisateur
+│   ├── index.html           # Page principale de l'application
+│   ├── result.html          # Page d'affichage des résultats
+│
+├── static/                  # Contient les fichiers CSS, JavaScript et images statiques
+│   ├── style.css            # Feuille de style pour l'application
+│
+├── instance/                # Dossier utilisé par Flask pour les fichiers temporaires
+│
+└── venv/                    # Environnement virtuel Python (optionnel, recommandé)
+```
+
+## 🛠 Technologies utilisées
+Le projet repose sur les technologies suivantes :
+
+- **Langage de programmation** : Python
+- **Framework web** : Flask
+- **Base de données** : SQLite
+- **Frontend** : HTML, CSS, JavaScript (Flask Jinja2 Templates)
+- **Machine Learning** : Intégration d'un module d'intelligence artificielle (`ai_module.py`)
 
 ## 🚀 Installation et utilisation
 
